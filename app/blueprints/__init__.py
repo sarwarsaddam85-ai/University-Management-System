@@ -20,8 +20,9 @@ else:
         cred = credentials.Certificate('serviceAccountKey.json')
     else:
         print("!!! ERROR: No serviceAccountKey.json found locally !!!")
-        raise FileNotFoundError("serviceAccountKey.json not found")
+        # Fallback or placeholder for local development without the file
+        cred = None 
 
 # 2. Initialize the app only if it hasn't been started yet
-if not firebase_admin._apps:
+if cred and not firebase_admin._apps:
     firebase_admin.initialize_app(cred)
