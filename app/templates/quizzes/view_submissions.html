@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Quiz Submissions: {{ quiz.title }}{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Quiz Submissions</h2>
+        <a href="{{ url_for('quizzes.list_quizzes') }}" class="btn btn-secondary">
+            &larr; Back to Quiz List
+        </a>
+    </div>
+
+    <h4>Quiz: {{ quiz.title }}</h4>
+    <p><strong>Course:</strong> {{ course_name }}</p>
+    <hr>
+
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Student Name</th>
+                <th>Roll No.</th>
+                <th>Submission Date</th>
+                <th>Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for submission in submissions %}
+            <tr>
+                <td>{{ submission.student_name }}</td>
+                <td>{{ submission.student_roll_no }}</td>
+                <td>{{ submission.submitted_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>{{ submission.score }} / {{ submission.total_questions }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" class="text-center">No submissions found for this quiz yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

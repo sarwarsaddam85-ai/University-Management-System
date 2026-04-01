@@ -1,0 +1,14 @@
+# Python virtual environment
+venv/
+__pycache__/
+
+# Local Uploads
+app/static/uploads/
+app/static/submissions/
+app/static/receipts/
+
+# IDE files
+.vscode/
+*.idea/
+
+serviceAccountKey.json

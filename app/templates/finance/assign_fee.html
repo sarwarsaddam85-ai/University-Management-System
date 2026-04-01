@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Assign/Update Fee{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h2 class="card-title text-center mb-0">Assign/Update Fee</h2>
+            </div>
+            <div class="card-body">
+                <h4>Student: {{ student.name }}</h4>
+                <p><strong>Roll No:</strong> {{ student.roll_no }}</p>
+                <hr>
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="assigned_fee" class="form-label">Total Fee Assigned ($):</label>
+                        <input type="number" step="0.01" min="0" id="assigned_fee" name="assigned_fee" class="form-control" value="{{ student.fee_assigned }}" required>
+                        <small class="form-text text-muted">Enter the total fee amount for this semester/period.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="paid_fee" class="form-label">Amount Paid ($):</label>
+                        <input type="number" step="0.01" min="0" id="paid_fee" name="paid_fee" class="form-control" value="{{ student.fee_paid }}" required>
+                        <small class="form-text text-muted">Enter the total amount the student has paid so far.</small>
+                    </div>
+
+                    <br>
+                    <div class="text-end">
+                        <a href="{{ url_for('finance.fee_status') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-success">Save Fee Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

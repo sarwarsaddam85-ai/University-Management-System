@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fee Challan - {{ student.roll_no }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .challan-container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 30px;
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .challan-header { text-align: center; margin-bottom: 20px; }
+        .challan-section { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px dashed #ccc;}
+        .section-title { font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .info-label { font-weight: 500; }
+        .fee-table th, .fee-table td { text-align: right; }
+        .fee-table th:first-child, .fee-table td:first-child { text-align: left; }
+        .text-right { text-align: right; }
+        @media print {
+            body { background-color: #fff; margin: 0; padding: 0;}
+            .challan-container { box-shadow: none; border: none; margin: 0; max-width: 100%;}
+            .no-print { display: none; } /* Hide buttons when printing */
+        }
+    </style>
+</head>
+<body>
+    <div class="challan-container">
+        <div class="challan-header">
+            <h2>University Fee Challan</h2>
+            <p>Student Management System</p>
+        </div>
+
+        <div class="challan-section">
+            <h4 class="section-title">Student Copy</h4>
+            <div class="info-row">
+                <span class="info-label">Challan No:</span>
+                <span>SMS-{{ student.id[:8].upper() }}-{{ today_date.strftime('%y%m') }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Student Name:</span>
+                <span>{{ student.name | default('N/A') }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Roll No:</span>
+                <span>{{ student.roll_no | default('N/A') }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Department:</span>
+                <span>{{ student.department | default('N/A') }}</span>
+            </div>
+             <div class="info-row">
+                <span class="info-label">Semester:</span>
+                <span>{{ student.semester | default('N/A') }}</span>
+            </div>
+             <div class="info-row">
+                <span class="info-label">Due Date:</span>
+                <span>{{ due_date.strftime('%Y-%m-%d') }}</span>
+            </div>
+
+            <table class="table table-bordered mt-3 fee-table">
+                <thead class="table-light">
+                    <tr>
+                        <th>Fee Description</th>
+                        <th>Amount ($)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Semester Fee</td>
+                        <td>{{ "{:,.2f}".format(student.fee_assigned | default(0.0)) }}</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr class="fw-bold">
+                        <td>Total Amount Due</td>
+                        <td>{{ "{:,.2f}".format(student.fee_assigned | default(0.0)) }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <div class="mt-3">
+                <p class="fw-bold">Bank Deposit Information:</p>
+                <p class="mb-1">Bank Name: Example Bank Ltd.</p>
+                <p class="mb-1">Account Title: Student Management System Fees</p>
+                <p class="mb-1">Account Number: 1234-567890-12345</p>
+                <p class="mb-1">Branch: Main Campus Branch</p>
+            </div>
+             <p class="mt-3 fst-italic small">Instructions: Please deposit the fee amount at any branch... Upload a scan/photo via the student portal.</p>
+        </div>
+
+        <div class="challan-section">
+             <h4 class="section-title">Bank Copy</h4>
+             <div class="info-row"><span class="info-label">Challan No:</span><span>SMS-{{ student.id[:8].upper() }}-{{ today_date.strftime('%y%m') }}</span></div>
+             <div class="info-row"><span class="info-label">Student Name:</span><span>{{ student.name | default('N/A') }}</span></div>
+             <div class="info-row"><span class="info-label">Roll No:</span><span>{{ student.roll_no | default('N/A') }}</span></div>
+
+             <table class="table table-bordered mt-3 fee-table">
+                <thead class="table-light"><tr><th>Fee Description</th><th>Amount ($)</th></tr></thead>
+                <tbody><tr><td>Semester Fee</td><td>{{ "{:,.2f}".format(student.fee_assigned | default(0.0)) }}</td></tr></tbody>
+                <tfoot><tr class="fw-bold"><td>Total Amount Due</td><td>{{ "{:,.2f}".format(student.fee_assigned | default(0.0)) }}</td></tr></tfoot>
+            </table>
+             <p class="mt-4">Bank Seal & Signature:</p>
+             <div style="height: 40px; border-bottom: 1px solid #ccc;"></div>
+        </div>
+
+        <div class="text-center mt-4 no-print">
+            <button onclick="window.print();" class="btn btn-primary">Print Challan</button>
+            <a href="{{ url_for('finance.fee_status') }}" class="btn btn-secondary">Back to Fee Status</a>
+        </div>
+    </div>
+</body>
+</html>

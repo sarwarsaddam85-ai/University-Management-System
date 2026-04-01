@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Grade Submissions{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Grade Submissions</h2>
+        <a href="{{ url_for('assignments.teacher_list') }}" class="btn btn-secondary">
+            &larr; Back to Assignment List
+        </a>
+    </div>
+
+    <h4>Assignment: {{ assignment.title }}</h4>
+    <p><strong>Course:</strong> {{ course_name }}</p>
+    <hr>
+
+    <form method="POST" action="{{ url_for('assignments.save_grades', assignment_id=assignment_id) }}">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h5>Student Submissions</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Roll No.</th>
+                            <th>Submission Status</th>
+                            <th>Submitted File</th>
+                            <th>Grade (e.g., 85)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students_with_submissions %}
+                        <tr>
+                            <td class="align-middle">{{ student.name }}</td>
+                            <td class="align-middle">{{ student.roll_no }}</td>
+                            <td class="align-middle">
+                                {% if student.submission %}
+                                    <span class="badge bg-success">Submitted</span>
+                                    <br><small class="text-muted">{{ student.submission.submitted_at.strftime('%Y-%m-%d') }}</small>
+                                {% else %}
+                                    <span class="badge bg-danger">Not Submitted</span>
+                                {% endif %}
+                            </td>
+                            <td class="align-middle">
+                                {% if student.submission and student.submission.file_url %}
+                                    <a href="{{ student.submission.file_url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-download me-1"></i> Download
+                                    </a>
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                            <td class="align-middle">
+                                <input type="number" name="grade-{{ student.id }}" class="form-control"
+                                       value="{{ student.submission.grade or '' }}" 
+                                       placeholder="--" style="max-width: 100px;" 
+                                       {% if not student.submission %}disabled{% endif %}>
+                                <input type="hidden" name="student_ids" value="{{ student.id }}">
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center">No students are enrolled in this course.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer text-end">
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-save me-1"></i> Save All Grades
+                </button>
+            </div>
+        </div>
+    </form>
+{% endblock %}

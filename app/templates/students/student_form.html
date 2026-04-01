@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if form_action == 'add' %}
+        Add Student
+    {% else %}
+        Edit Student
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h2 class="card-title text-center mb-0">
+                    {% if form_action == 'add' %}
+                        Add New Student
+                    {% else %}
+                        Edit Student
+                    {% endif %}
+                </h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{% if form_action == 'edit' %}{{ url_for('students.edit_student', student_id=student_id) }}{% else %}{{ url_for('students.add_student') }}{% endif %}">
+
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Full Name:</label>
+                        <input type="text" id="name" name="name" class="form-control" value="{{ student.name or '' }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="user_id" class="form-label">Link to User Account:</label>
+                        <select id="user_id" name="user_id" class="form-select" required>
+                            <option value="">-- Select a registered student user --</option>
+                            {% for user in student_users %}
+                                <option value="{{ user.uid }}" {% if user.uid == student.user_id %}selected{% endif %}>
+                                    {{ user.email }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-text text-muted">If you don't see a user, they must register with the "Student" role first.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="roll_no" class="form-label">Roll No:</label>
+                        <input type="text" id="roll_no" name="roll_no" class="form-control" value="{{ student.roll_no or '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="department" class="form-label">Department:</label>
+                        <input type="text" id="department" name="department" class="form-control" value="{{ student.department or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="semester" class="form-label">Semester:</label>
+                        <input type="text" id="semester" name="semester" class="form-control" value="{{ student.semester or '' }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="timetable_id" class="form-label">Assign Timetable:</label>
+                        <select id="timetable_id" name="timetable_id" class="form-select">
+                            <option value="">-- No Timetable Assigned --</option>
+                            {% for tt in all_timetables %} {# Loop through timetables passed from Python #}
+                                <option value="{{ tt.id }}" {% if tt.id == student.timetable_id %}selected{% endif %}> {# Pre-select if editing #}
+                                    {{ tt.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-text text-muted">Select the timetable this student should follow.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="hostel_room_id" class="form-label">Assign Hostel Room:</label>
+                        <select id="hostel_room_id" name="hostel_room_id" class="form-select">
+                            <option value="">-- No Room Assigned --</option>
+                            {% for room in available_rooms %}
+                                <option value="{{ room.id }}" {% if room.id == student.hostel_room_id %}selected{% endif %}>
+                                    {{ room.room_number }} ({{ room.hostel_block }}) - [{{ room.occupancy }}/{{ room.capacity }}]
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-text text-muted">Select an available hostel room for this student.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="contact_info" class="form-label">Contact Info:</label>
+                        <input type="text" id="contact_info" name="contact_info" class="form-control" value="{{ student.contact_info or '' }}">
+                    </div>
+
+                    <br>
+
+                    <div class="text-end">
+                        <a href="{{ url_for('students.index') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-success">
+                            {% if form_action == 'add' %}
+                                Save Student
+                            {% else %}
+                                Update Student
+                            {% endif %}
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

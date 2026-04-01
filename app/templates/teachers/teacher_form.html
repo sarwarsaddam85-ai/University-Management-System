@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if form_action == 'add' %}
+        Add Teacher
+    {% else %}
+        Edit Teacher
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h2 class="card-title text-center mb-0">
+                    {% if form_action == 'add' %}
+                        Add New Teacher
+                    {% else %}
+                        Edit Teacher
+                    {% endif %}
+                </h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{% if form_action == 'edit' %}{{ url_for('teachers.edit_teacher', teacher_id=teacher_id) }}{% else %}{{ url_for('teachers.add_teacher') }}{% endif %}">
+                    
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Full Name:</label>
+                        <input type="text" id="name" name="name" class="form-control" value="{{ teacher.name or '' }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="user_id" class="form-label">Link to User Account:</label>
+                        <select id="user_id" name="user_id" class="form-select" required>
+                            <option value="">-- Select a registered teacher user --</option>
+                            {% for user in teacher_users %}
+                                <option value="{{ user.uid }}" {% if user.uid == teacher.user_id %}selected{% endif %}>
+                                    {{ user.email }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-text text-muted">If you don't see a user, they must register with the "Teacher" role first.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="department" class="form-label">Department:</label>
+                        <input type="text" id="department" name="department" class="form-control" value="{{ teacher.department or '' }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="subjects" class="form-label">Subjects:</label>
+                        <input type="text" id="subjects" name="subjects" class="form-control" value="{{ teacher.subjects or '' }}" placeholder="e.g., Math, Physics">
+                    </div>
+                    
+                    <br>
+                    
+                    <div class="text-end">
+                        <a href="{{ url_for('teachers.index') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-success">
+                            {% if form_action == 'add' %}
+                                Save Teacher
+                            {% else %}
+                                Update Teacher
+                            {% endif %}
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

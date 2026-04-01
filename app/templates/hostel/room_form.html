@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if form_action == 'add' %} Add Hostel Room {% else %} Edit Hostel Room {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h2 class="card-title text-center mb-0">
+                    {% if form_action == 'add' %} Add Hostel Room {% else %} Edit Hostel Room {% endif %}
+                </h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{% if form_action == 'edit' %}{{ url_for('hostel.edit_room', room_id=room_id) }}{% else %}{{ url_for('hostel.add_room') }}{% endif %}">
+
+                    <div class="mb-3">
+                        <label for="room_number" class="form-label">Room Number:</label>
+                        <input type="text" id="room_number" name="room_number" class="form-control" value="{{ room.room_number or '' }}" placeholder="e.g., A-101" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="hostel_block" class="form-label">Hostel Block/Name (Optional):</label>
+                        <input type="text" id="hostel_block" name="hostel_block" class="form-control" value="{{ room.hostel_block or '' }}" placeholder="e.g., Jinnah Block">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="capacity" class="form-label">Total Capacity:</label>
+                        <input type="number" min="1" id="capacity" name="capacity" class="form-control" value="{{ room.capacity or 1 }}" required>
+                        <small class="form-text text-muted">Total number of students this room can hold.</small>
+                    </div>
+                    
+                    {% if form_action == 'edit' %}
+                    <div class="mb-3">
+                        <label for="occupancy" class="form-label">Current Occupancy:</label>
+                        <input type="text" id="occupancy" name="occupancy" class="form-control" value="{{ room.students_assigned | length }} student(s)" readonly disabled>
+                    </div>
+                    {% endif %}
+                    
+                    <br>
+                    <div class="text-end">
+                        <a href="{{ url_for('hostel.room_list') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-success">
+                            {% if form_action == 'add' %} Save Room {% else %} Update Room {% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

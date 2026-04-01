@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if form_action == 'create' %} Create New Timetable {% else %} Edit Timetable {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h2 class="card-title text-center mb-0">
+                     {% if form_action == 'create' %} Create New Timetable {% else %} Edit Timetable {% endif %}
+                </h2>
+            </div>
+            <div class="card-body">
+                <p>Define a new timetable structure (e.g., by class, semester, or section). You will add the schedule details in the next step.</p>
+                <hr>
+                <form method="POST"> {# Action URL handled by Flask route #}
+
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Timetable Name:</label>
+                        <input type="text" id="name" name="name" class="form-control" value="{{ timetable.name or '' }}" placeholder="e.g., CS Semester 3 - Fall 2025" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description (Optional):</label>
+                        <textarea id="description" name="description" class="form-control" rows="3">{{ timetable.description or '' }}</textarea>
+                    </div>
+
+                    <br>
+                    <div class="text-end">
+                        <a href="{{ url_for('timetable.timetable_list') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-success">
+                            {% if form_action == 'create' %} Create & Manage Schedule {% else %} Update Timetable {% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Complete Your Payment{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h2 class="card-title text-center mb-0">Simulated Payment Gateway</h2>
+            </div>
+            <div class="card-body p-4 text-center">
+                <p class="lead">You are about to pay the following amount:</p>
+                <h1 class="display-4 fw-bold text-success">${{ "{:,.2f}".format(amount_due) }}</h1>
+                <p class="text-muted">(Simulating a payment via Easypaisa / JazzCash)</p>
+                
+                <hr class="my-4">
+                
+                <form method="POST" action="{{ url_for('finance.process_fake_payment') }}">
+                    <input type="hidden" name="amount_paid" value="{{ amount_due }}">
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="bi bi-check-circle-fill me-2"></i>Confirm Fake Payment
+                        </button>
+                        <a href="{{ url_for('finance.my_fees') }}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

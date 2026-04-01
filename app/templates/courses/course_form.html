@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if form_action == 'add' %}
+        Add Course
+    {% else %}
+        Edit Course
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h2 class="card-title text-center mb-0">
+                    {% if form_action == 'add' %}
+                        Add New Course
+                    {% else %}
+                        Edit Course
+                    {% endif %}
+                </h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{% if form_action == 'edit' %}{{ url_for('courses.edit_course', course_id=course_id) }}{% else %}{{ url_for('courses.add_course') }}{% endif %}">
+                    
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Course Name:</label>
+                        <input type="text" id="name" name="name" class="form-control" value="{{ course.name or '' }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="course_code" class="form-label">Course Code:</label>
+                        <input type="text" id="course_code" name="course_code" class="form-control" value="{{ course.course_code or '' }}" placeholder="e.g., CS101">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="department" class="form-label">Department:</label>
+                        <input type="text" id="department" name="department" class="form-control" value="{{ course.department or '' }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="teacher_id" class="form-label">Assign Teacher:</label>
+                        <select id="teacher_id" name="teacher_id" class="form-select">
+                            <option value="">-- Select a Teacher --</option>
+                            {% for teacher in teachers %}
+                                <option value="{{ teacher.id }}" {% if teacher.id == course.teacher_id %}selected{% endif %}>
+                                    {{ teacher.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <br>
+                    
+                    <div class="text-end">
+                        <a href="{{ url_for('courses.index') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-success">
+                            {% if form_action == 'add' %}
+                                Save Course
+                            {% else %}
+                                Update Course
+                            {% endif %}
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

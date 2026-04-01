@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Manage My Assignments{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>My Uploaded Assignments</h2>
+        <a href="{{ url_for('assignments.upload_assignment') }}" class="btn btn-primary">
+            + Upload New Assignment
+        </a>
+    </div>
+
+    <hr>
+
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Title</th>
+                <th>Course</th>
+                <th>Uploaded On</th>
+                <th>Due Date</th>
+                <th>File</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for assignment in assignments %}
+            <tr>
+                <td class="align-middle">{{ assignment.title }}</td>
+                <td class="align-middle">{{ assignment.course_name }}</td>
+                <td class="align-middle">{{ assignment.uploaded_at.strftime('%Y-%m-%d') }}</td>
+                <td class="align-middle">{{ assignment.due_date.strftime('%Y-%m-%d') if assignment.due_date else 'N/A' }}</td>
+                <td class="align-middle">
+                    <a href="{{ assignment.file_url }}" target="_blank" rel="noopener noreferrer">
+                        {{ assignment.filename }}
+                    </a>
+                </td>
+                
+                <td class="align-middle">
+                    <div class="d-flex flex-wrap gap-1">
+                        <a href="{{ url_for('assignments.edit_assignment', assignment_id=assignment.id) }}" class="btn btn-warning btn-sm">Edit</a>
+                        
+                        <a href="{{ url_for('assignments.view_submissions', assignment_id=assignment.id) }}" class="btn btn-success btn-sm">View Submissions</a>
+                        
+                        <form action="{{ url_for('assignments.delete_assignment', assignment_id=assignment.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this assignment?');">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </div>
+                </td>
+                </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" class="text-center">You have not uploaded any assignments yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

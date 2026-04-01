@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Student Fee Status{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Student Fee Status</h2>
+        <a href="{{ url_for('finance.export_fees_excel') }}" class="btn btn-success">
+            Export to Excel
+        </a>
+    </div>
+
+    <hr>
+
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Student Name</th>
+                <th>Roll No.</th>
+                <th>Assigned Fee</th>
+                <th>Amount Paid</th>
+                <th>Status</th>
+                <th>Receipt</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td>{{ student.name }}</td>
+                <td>{{ student.roll_no }}</td>
+                <td>${{ "{:,.2f}".format(student.fee_assigned) }}</td> <td>${{ "{:,.2f}".format(student.fee_paid) }}</td>   <td>
+                    {% if student.fee_status == 'Paid' %}
+                        <span class="badge bg-success">{{ student.fee_status }}</span>
+                    {% elif student.fee_status == 'Partially Paid' %}
+                        <span class="badge bg-warning text-dark">{{ student.fee_status }}</span>
+                    {% elif student.fee_status == 'Unpaid' %}
+                        <span class="badge bg-danger">{{ student.fee_status }}</span>
+                    {% else %}
+                        <span class="badge bg-secondary">{{ student.fee_status }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if student.receipt_url %}
+                        <a href="{{ student.receipt_url }}" target="_blank" class="btn btn-outline-secondary btn-sm">View</a>
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('finance.assign_fee', student_id=student.id) }}" class="btn btn-primary btn-sm">Assign/Update Fee</a>
+                    <a href="{{ url_for('finance.view_challan', student_id=student.id) }}" class="btn btn-secondary btn-sm" target="_blank">View Challan</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" class="text-center">No students found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

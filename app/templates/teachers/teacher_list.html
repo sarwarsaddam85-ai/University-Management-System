@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Teacher Management{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Teacher List</h2>
+        <a href="{{ url_for('teachers.add_teacher') }}" class="btn btn-primary">
+            + Add New Teacher
+        </a>
+    </div>
+    
+    <hr>
+    
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Name</th>
+                <th>Linked Email</th>
+                <th>Department</th>
+                <th>Subjects</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for teacher in teachers %}
+            <tr>
+                <td>{{ teacher.name }}</td>
+                <td>{{ teacher.email }}</td>
+                <td>{{ teacher.department }}</td>
+                <td>{{ teacher.subjects }}</td>
+                <td>
+                    <a href="{{ url_for('teachers.edit_teacher', teacher_id=teacher.id) }}" class="btn btn-warning btn-sm">Edit</a> 
+                    <a href="{{ url_for('teachers.delete_teacher', teacher_id=teacher.id) }}"
+                       class="btn btn-danger btn-sm"
+                       onclick="return confirm('Are you sure you want to delete this teacher?');">Delete</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="text-center">No teachers found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

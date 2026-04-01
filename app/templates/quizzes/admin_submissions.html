@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Quiz Submissions (Admin View){% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h5>Select Quiz for Report</h5>
+            </div>
+            <div class="card-body">
+                <p>Select a quiz to view all its submissions.</p>
+                <form method="GET" action="{{ url_for('quizzes.admin_view_submissions') }}">
+                    <div class="mb-3">
+                        <label for="quiz_id" class="form-label">All Quizzes:</label>
+                        <select name="quiz_id" id="quiz_id" class="form-select" onchange="this.form.submit()">
+                            <option value="">-- Select a Quiz --</option>
+                            {% for quiz in all_quizzes %}
+                                <option value="{{ quiz.id }}" {% if quiz.id == selected_quiz_id %}selected{% endif %}>
+                                    {{ quiz.title }} ({{ quiz.course_name }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        {% if submissions %}
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5>Submissions for: {{ selected_quiz_title }}</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped table-hover table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Roll No.</th>
+                            <th>Submission Date</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for submission in submissions %}
+                        <tr>
+                            <td>{{ submission.student_name }}</td>
+                            <td>{{ submission.student_roll_no }}</td>
+                            <td>{{ submission.submitted_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>{{ submission.score }} / {{ submission.total_questions }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+            <div class="alert alert-info">
+                {% if selected_quiz_id %}
+                    No submissions found for this quiz yet.
+                {% else %}
+                    Please select a quiz from the left to view submissions.
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

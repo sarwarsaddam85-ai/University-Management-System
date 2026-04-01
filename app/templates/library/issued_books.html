@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Issued Books{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Currently Issued Books</h2>
+        <a href="{{ url_for('library.book_list') }}" class="btn btn-secondary">
+            &larr; Back to Book Catalog
+        </a>
+    </div>
+
+    <hr>
+
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Book Title</th>
+                <th>Student Name</th>
+                <th>Roll No.</th>
+                <th>Issue Date</th>
+                <th>Due Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for issue in issued_books %}
+            <tr>
+                <td>{{ issue.book_title }}</td>
+                <td>{{ issue.student_name }}</td>
+                <td>{{ issue.student_roll_no }}</td>
+                <td>{{ issue.issue_date.strftime('%Y-%m-%d') }}</td>
+                <td {% if issue.is_overdue %}class="text-danger fw-bold"{% endif %}>
+                    {{ issue.due_date.strftime('%Y-%m-%d') }}
+                    {% if issue.is_overdue %} (Overdue){% endif %}
+                </td>
+                <td>
+                    <form action="{{ url_for('library.return_book', issue_id=issue.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Mark this book as returned?');">
+                        <button type="submit" class="btn btn-success btn-sm">Mark as Returned</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" class="text-center">No books are currently issued.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

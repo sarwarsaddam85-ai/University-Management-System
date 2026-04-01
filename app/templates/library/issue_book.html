@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Issue Book{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h2 class="card-title text-center mb-0">Issue Book</h2>
+            </div>
+            <div class="card-body">
+                <p>Select a student and an available book to issue.</p>
+                <hr>
+                <form method="POST">
+
+                    <div class="mb-3">
+                        <label for="student_id" class="form-label">Select Student:</label>
+                        <select id="student_id" name="student_id" class="form-select" required>
+                            <option value="">-- Select Student --</option>
+                            {% for student in students %}
+                                <option value="{{ student.id }}">
+                                    {{ student.name }} ({{ student.roll_no }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="book_id" class="form-label">Select Available Book:</label>
+                        <select id="book_id" name="book_id" class="form-select" required>
+                            <option value="">-- Select Book --</option>
+                            {% for book in available_books %}
+                                <option value="{{ book.id }}">
+                                    {{ book.title }} by {{ book.author }} (Available: {{ book.quantity_available }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="due_date" class="form-label">Due Date:</label>
+                        <input type="date" id="due_date" name="due_date" class="form-control" value="{{ default_due_date }}" required>
+                    </div>
+
+                    <br>
+                    <div class="text-end">
+                        <a href="{{ url_for('library.book_list') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-success">Issue Book</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

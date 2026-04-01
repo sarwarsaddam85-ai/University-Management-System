@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance Report{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h5>Select Course for Report</h5>
+            </div>
+            <div class="card-body">
+                <p>Select a course to view its full attendance history.</p>
+                <form method="GET" action="{{ url_for('attendance.view_report') }}">
+                    <div class="mb-3">
+                        <label for="course_id" class="form-label">All Courses:</label>
+                        <select name="course_id" id="course_id" class="form-select" onchange="this.form.submit()">
+                            <option value="">-- Select a Course --</option>
+                            {% for course in all_courses %}
+                                <option value="{{ course.id }}" {% if course.id == selected_course_id %}selected{% endif %}>
+                                    {{ course.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        {% if attendance_records %}
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5>Attendance Report for: {{ course_name }}</h5>
+                
+                <a href="{{ url_for('attendance.download_report', course_id=selected_course_id) }}" class="btn btn-light btn-sm">
+                    Download Report (CSV)
+                </a>
+                </div>
+            <div class="card-body">
+                <div class="accordion" id="attendanceAccordion">
+                    {% for record in attendance_records %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading_{{ loop.index }}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ loop.index }}">
+                                <strong>Date: {{ record.date }}</strong>
+                            </button>
+                        </h2>
+                        <div id="collapse_{{ loop.index }}" class="accordion-collapse collapse" data-bs-parent="#attendanceAccordion">
+                            <div class="accordion-body">
+                                <table class="table table-sm table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Student Name</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for student_id, status in record.students.items() %}
+                                        <tr>
+                                            <td>{{ students_map.get(student_id, 'Unknown Student') }}</td>
+                                            <td>
+                                                {% if status == 'present' %}
+                                                    <span class="badge bg-success">Present</span>
+                                                {% else %}
+                                                    <span class="badge bg-danger">Absent</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+            <div class="alert alert-info">
+                {% if selected_course_id %}
+                    No attendance records found for this course.
+                {% else %}
+                    Please select a course from the left to view its report.
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

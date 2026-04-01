@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}My Quizzes{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>My Quizzes</h2>
+        <a href="{{ url_for('quizzes.create_quiz') }}" class="btn btn-primary">
+            + Create New Quiz
+        </a>
+    </div>
+
+    <hr>
+
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Quiz Title</th>
+                <th>Course</th>
+                <th>Date Created</th>
+                <th>Deadline</th>
+                <th>No. of Questions</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for quiz in quizzes %}
+            <tr>
+                <td>{{ quiz.title }}</td>
+                <td>{{ quiz.course_name }}</td>
+                <td>{{ quiz.created_at.strftime('%Y-%m-%d') }}</td>
+                <td>{{ quiz.deadline.strftime('%Y-%m-%d') if quiz.deadline else 'No Deadline' }}</td>
+                <td>{{ quiz.question_count }}</td>
+                <td class="align-middle"> {# Align buttons vertically #}
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Quiz Actions">
+                        <a href="{{ url_for('quizzes.add_questions', quiz_id=quiz.id) }}" class="btn btn-warning">Edit Questions</a>
+                        <a href="{{ url_for('quizzes.view_submissions', quiz_id=quiz.id) }}" class="btn btn-info">View Submissions</a>
+                    </div>
+                </td>
+                </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" class="text-center">No quizzes found.</td> {# Updated colspan to 6 #}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

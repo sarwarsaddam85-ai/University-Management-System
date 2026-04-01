@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Available Quizzes{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Available Quizzes</h2>
+    </div>
+
+    <div class="row">
+        {% for quiz in available_quizzes %}
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="card-title mb-0">{{ quiz.title }}</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Course:</strong> {{ quiz.course_name }}</p>
+                    <p><strong>Questions:</strong> {{ quiz.question_count }}</p>
+                    <p><strong>Deadline:</strong> {{ quiz.deadline.strftime('%Y-%m-%d') if quiz.deadline else 'No Deadline' }}</p>
+
+                    {% if quiz.id in submitted_quiz_ids %}
+                        <span class="badge bg-secondary fs-6">Quiz Completed</span>
+                    {% else %}
+                        <a href="{{ url_for('quizzes.take_quiz', quiz_id=quiz.id) }}" class="btn btn-success">Take Quiz</a>
+                    {% endif %}
+                    </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                There are no quizzes available for your enrolled courses at this time.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}

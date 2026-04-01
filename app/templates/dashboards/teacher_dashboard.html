@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Teacher Dashboard{% endblock %}
+{% block content %}
+    <h2 class="mb-4">Teacher Dashboard</h2>
+    <p class="lead">Welcome back, {{ user_email }}!</p>
+
+    <hr class="my-4">
+
+    <div class="row">
+        <div class="col-md-8">
+            
+            <h3 class="mt-4">My Courses</h3>
+            <div class="row mb-4">
+                {% for course in my_courses %}
+                <div class="col-md-6">
+                    <div class="card mb-3 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ course.name }}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">{{ course.course_code }} | {{ course.department }}</h6>
+                            <p class="card-text">
+                                You have <strong>{{ course.student_count }}</strong> student(s) enrolled.
+                            </p>
+                            
+                            <div class="d-flex flex-wrap gap-2"> {# d-flex (horizontal) + gap-2 (spacing) #}
+                                <a href="{{ url_for('attendance.mark_attendance', course_id=course.id) }}" class="btn btn-sm btn-primary">Mark Attendance</a>
+                                <a href="{{ url_for('assignments.teacher_list') }}" class="btn btn-sm btn-outline-secondary">Manage Assignments</a>
+                                <a href="{{ url_for('quizzes.list_quizzes') }}" class="btn btn-sm btn-warning">Manage Quizzes</a>
+                            </div>
+                            </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        You are not currently assigned to any courses. Please contact an administrator.
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <h3 class="mt-4" id="schedule">My Weekly Schedule</h3>
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    {% set schedule_has_entries = false %}
+                    <div class="row">
+                        {% for day in days_of_week %}
+                            {% if my_schedule.get(day) %}
+                                {% set schedule_has_entries = true %}
+                                <div class="col-md-6 col-lg-4 mb-3">
+                                    <h5 class="border-bottom pb-2">{{ day }}</h5>
+                                    {% for entry in my_schedule[day] %}
+                                        <div class="mb-2">
+                                            <strong>{{ entry.time_slot }}</strong><br>
+                                            {{ entry.course_name }}<br>
+                                            <small class="text-muted">{% if entry.room_no %}Room: {{ entry.room_no }}{% endif %}</small>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                     {% if not schedule_has_entries %}
+                         <div class="alert alert-info">Your schedule for the week is currently empty.</div>
+                     {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <h3>Quick Actions</h3>
+            <div class="list-group shadow-sm mb-4">
+                <a href="{{ url_for('attendance.mark_attendance') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-1"><i class="bi bi-check2-square me-2 text-primary"></i>Mark Attendance</h5>
+                        <small>Select a course and mark daily attendance.</small>
+                    </div>
+                    <span class="badge bg-primary rounded-pill">></span>
+                </a>
+                <a href="{{ url_for('assignments.upload_assignment') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                     <div>
+                        <h5 class="mb-1"><i class="bi bi-upload me-2 text-success"></i>Upload Assignment</h5>
+                        <small>Upload assignment files for your courses.</small>
+                    </div>
+                    <span class="badge bg-success rounded-pill">></span>
+                </a>
+                 <a href="{{ url_for('assignments.teacher_list') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-1"><i class="bi bi-file-earmark-text me-2 text-secondary"></i>Manage Assignments</h5>
+                        <small>View, edit, or delete your assignments.</small>
+                    </div>
+                    <span class="badge bg-secondary rounded-pill">></span>
+                </a>
+                <a href="{{ url_for('quizzes.list_quizzes') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-1"><i class="bi bi-patch-question me-2 text-warning"></i>Manage Quizzes</h5>
+                        <small>Create quizzes and view submissions.</small>
+                    </div>
+                    <span class="badge bg-warning rounded-pill">></span>
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

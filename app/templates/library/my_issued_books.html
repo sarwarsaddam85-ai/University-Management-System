@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}My Issued Books{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>My Issued Books</h2>
+         <a href="{{ url_for('dashboard.student_dashboard') }}" class="btn btn-secondary">
+            &larr; Back to Dashboard
+        </a>
+    </div>
+
+    <hr>
+
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Book Title</th>
+                <th>Author</th>
+                <th>Issue Date</th>
+                <th>Due Date</th>
+                <th>Penalty Due</th> {# <-- ADDED THIS HEADER #}
+            </tr>
+        </thead>
+        <tbody>
+            {% for issue in my_issued_books %}
+            <tr>
+                <td>{{ issue.book_title }}</td>
+                <td>{{ issue.book_author }}</td>
+                <td>{{ issue.issue_date.strftime('%Y-%m-%d') }}</td>
+                <td {% if issue.is_overdue %}class="text-danger fw-bold"{% endif %}>
+                    {{ issue.due_date.strftime('%Y-%m-%d') }}
+                     {% if issue.is_overdue %} (Overdue){% endif %}
+                </td>
+                {# #}
+                <td class="text-danger">
+                     {% if issue.penalty > 0 %}
+                        ${{ "{:,.2f}".format(issue.penalty) }} {# Format as currency #}
+                    {% else %}
+                        - {# Show dash if no penalty #}
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="text-center">You do not have any books currently issued.</td> {# <-- UPDATED colspan to 5 #}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

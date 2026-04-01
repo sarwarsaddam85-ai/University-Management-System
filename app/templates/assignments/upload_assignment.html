@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Assignment{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h2 class="card-title text-center mb-0">Upload New Assignment</h2>
+            </div>
+            <div class="card-body">
+                <p>Fill out the form to upload a new assignment file.</p>
+                <hr>
+                <form method="POST" enctype="multipart/form-data">
+
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Assignment Title:</label>
+                        <input type="text" id="title" name="title" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="course_id" class="form-label">Assign to Course:</label>
+                        <select id="course_id" name="course_id" class="form-select" required>
+                            <option value="">-- Select one of your courses --</option>
+                            {% for course in teacher_courses %}
+                                <option value="{{ course.id }}">
+                                    {{ course.name }} ({{ course.course_code }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="due_date" class="form-label">Due Date:</label>
+                        <input type="date" id="due_date" name="due_date" class="form-control" value="{{ today }}">
+                        <small class="form-text text-muted">Students must submit by this date.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="assignment_file" class="form-label">Assignment File:</label>
+                        <input type="file" id="assignment_file" name="assignment_file" class="form-control" required>
+                    </div>
+
+                    <br>
+
+                    <div class="text-end">
+                        <a href="{{ url_for('dashboard.teacher_dashboard') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-success">Upload Assignment</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

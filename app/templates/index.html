@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+    <div class="container p-5 rounded-3 bg-light shadow-sm mt-4">
+        <h1 class="display-4">Welcome to the Student Management System</h1>
+        <p class="lead">Your all-in-one solution for managing students, teachers, courses, and more.</p>
+        <hr class="my-4">
+        
+        {% if session.user_id %}
+            <p>Welcome back, <strong>{{ session.email }}</strong>! Go to your dashboard to get started.</p>
+            
+            {% if session.role == 'admin' %}
+                <a class="btn btn-primary btn-lg" href="{{ url_for('dashboard.admin_dashboard') }}" role="button">Go to Admin Dashboard</a>
+            {% elif session.role == 'teacher' %}
+                <a class="btn btn-primary btn-lg" href="{{ url_for('dashboard.teacher_dashboard') }}" role="button">Go to Teacher Dashboard</a>
+            {% else %}
+                <a class="btn btn-primary btn-lg" href="{{ url_for('dashboard.student_dashboard') }}" role="button">Go to Student Dashboard</a>
+            {% endif %}
+        
+        {% else %}
+            <p>Please log in or register to access the system.</p>
+            <a class="btn btn-primary btn-lg" href="{{ url_for('auth.login') }}" role="button">Login</a>
+            <a class="btn btn-secondary btn-lg" href="{{ url_for('auth.register') }}" role="button">Register</a>
+        {% endif %}
+    </div>
+{% endblock %}

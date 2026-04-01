@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}My Fee Status{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h2 class="card-title text-center mb-0">My Fee Status</h2>
+            </div>
+            <div class="card-body">
+                {% if student_fee_data %}
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong>Total Fee Assigned:</strong>
+                            <span>${{ "{:,.2f}".format(student_fee_data.fee_assigned) }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong>Total Amount Paid:</strong>
+                            <span>${{ "{:,.2f}".format(student_fee_data.fee_paid) }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong>Remaining Balance:</strong>
+                            <span>${{ "{:,.2f}".format(student_fee_data.fee_assigned - student_fee_data.fee_paid) }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong>Status:</strong>
+                            <span>
+                                {% if student_fee_data.fee_status == 'Paid' %}
+                                    <span class="badge bg-success">{{ student_fee_data.fee_status }}</span>
+                                {% elif student_fee_data.fee_status == 'Partially Paid' %}
+                                    <span class="badge bg-warning text-dark">{{ student_fee_data.fee_status }}</span>
+                                {% elif student_fee_data.fee_status == 'Unpaid' %}
+                                    <span class="badge bg-danger">{{ student_fee_data.fee_status }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ student_fee_data.fee_status }}</span>
+                                {% endif %}
+                            </span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong>Payment Receipt:</strong>
+                            <span>
+                                {% if student_fee_data.receipt_url %}
+                                    <a href="{{ student_fee_data.receipt_url }}" target="_blank" class="btn btn-outline-info btn-sm">View Uploaded Receipt</a>
+                                {% else %}
+                                    Not Uploaded Yet
+                                {% endif %}
+                            </span>
+                        </li>
+                    </ul>
+                    <hr>
+
+                    {% if student_fee_data.fee_assigned > student_fee_data.fee_paid %}
+                    <div class="text-center p-3 mb-3 bg-light rounded border">
+                        <h5 class="mb-3">Pay Your Outstanding Balance Online</h5>
+                        <p>Your remaining balance is <strong>${{ "{:,.2f}".format(student_fee_data.fee_assigned - student_fee_data.fee_paid) }}</strong></p>
+                        <a href="{{ url_for('finance.show_fake_payment') }}" class="btn btn-success btn-lg">
+                            <i class="bi bi-credit-card-fill me-2"></i>Pay Online Now
+                        </a>
+                    </div>
+                    <hr>
+                    {% endif %}
+                    <h5 class="mt-4">Upload Payment Receipt</h5>
+                    <p class="text-muted"><small>Upload an image (JPG, PNG) or PDF of your payment receipt for verification.</small></p>
+                    <form method="POST" action="{{ url_for('finance.upload_receipt') }}" enctype="multipart/form-data">
+                        <div class="input-group mb-3">
+                            <input type="file" class="form-control" name="receipt_file" id="receipt_file" accept=".pdf,.jpg,.jpeg,.png" required>
+                            <button class="btn btn-primary" type="submit">Upload Receipt</button>
+                        </div>
+                    </form>
+                {% else %}
+                    <div class="alert alert-warning">
+                        Your fee information has not been assigned yet. Please contact the administration.
+                    </div>
+                {% endif %}
+                 <div class="mt-3 text-end">
+                     <a href="{{ url_for('dashboard.student_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

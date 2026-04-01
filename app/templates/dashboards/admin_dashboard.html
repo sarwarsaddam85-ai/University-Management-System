@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+    <h2 class="mb-4">Admin Dashboard</h2>
+    <p class="lead">Welcome back, {{ user_email }}!</p>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary mb-3 shadow">
+                <div class="card-header text-center"><h5>Total Students</h5></div>
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <h1 class="card-title mb-0">{{ stats.student_count }}</h1>
+                    <i class="bi bi-people" style="font-size: 3rem; opacity: 0.5;"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-success mb-3 shadow">
+                <div class="card-header text-center"><h5>Total Teachers</h5></div>
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <h1 class="card-title mb-0">{{ stats.teacher_count }}</h1>
+                    <i class="bi bi-person-video3" style="font-size: 3rem; opacity: 0.5;"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-dark bg-warning mb-3 shadow">
+                <div class="card-header text-center"><h5>Total Courses</h5></div>
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <h1 class="card-title mb-0">{{ stats.course_count }}</h1>
+                    <i class="bi bi-book" style="font-size: 3rem; opacity: 0.5;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-4">
+
+    <div class="row">
+        
+        <div class="col-md-4">
+             <h3>Quick Actions</h3>
+             <div class="list-group shadow-sm">
+                <a href="{{ url_for('students.index') }}" class="list-group-item list-group-item-action"><i class="bi bi-people me-2 text-primary"></i>Manage Students</a>
+                <a href="{{ url_for('teachers.index') }}" class="list-group-item list-group-item-action"><i class="bi bi-person-video3 me-2 text-success"></i>Manage Teachers</a>
+                <a href="{{ url_for('courses.index') }}" class="list-group-item list-group-item-action"><i class="bi bi-book me-2 text-warning"></i>Manage Courses</a>
+                <a href="{{ url_for('timetable.timetable_list') }}" class="list-group-item list-group-item-action"><i class="bi bi-calendar-week me-2 text-dark"></i>Manage Timetables</a>
+                
+                <a href="{{ url_for('students.train_faces') }}" class="list-group-item list-group-item-action" onclick="return confirm('This process can take several minutes. Are you sure you want to run the training now?');">
+                    <i class="bi bi-robot me-2 text-primary"></i>Run Face Training
+                </a>
+                
+                <a href="{{ url_for('library.book_list') }}" class="list-group-item list-group-item-action"><i class="bi bi-bookshelf me-2 text-secondary"></i>Manage Library</a>
+                
+                <a href="{{ url_for('hostel.room_list') }}" class="list-group-item list-group-item-action"><i class="bi bi-building me-2 text-secondary"></i>Manage Hostel</a>
+                
+                <a href="{{ url_for('finance.fee_status') }}" class="list-group-item list-group-item-action"><i class="bi bi-currency-dollar me-2 text-danger"></i>Manage Fees</a>
+                
+                <a href="{{ url_for('attendance.view_report') }}" class="list-group-item list-group-item-action">
+                    <div><h5 class="mb-1"><i class="bi bi-card-checklist me-2 text-info"></i>Attendance Reports</h5></div>
+                </a>
+                
+                <a href="{{ url_for('quizzes.admin_view_submissions') }}" class="list-group-item list-group-item-action"><i class="bi bi-patch-check me-2 text-muted"></i>Quiz Submissions</a>
+             </div>
+        </div>
+
+        <div class="col-md-4">
+            <h3>Fee Status Overview</h3>
+            <div class="card shadow-sm">
+                <div class="card-body" style="min-height: 400px;">
+                    <canvas id="feeStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <h3>Attendance Overview</h3>
+            <div class="card shadow-sm">
+                <div class="card-body" style="min-height: 400px;">
+                    <canvas id="attendanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+    </div> 
+    
+    <script>
+    window.addEventListener('DOMContentLoaded', (event) => {
+        
+        // --- 1. Draw Fee Status Pie Chart ---
+        try {
+            const feeData = {{ fee_chart_data.data | tojson }};
+            const feeLabels = {{ fee_chart_data.labels | tojson }};
+            const feeCtx = document.getElementById('feeStatusChart');
+            
+            if (feeCtx) {
+                const feeTotal = feeData.reduce((acc, val) => acc + val, 0);
+                if (feeTotal === 0) {
+                    feeCtx.parentElement.innerHTML = '<div class="d-flex align-items-center justify-content-center h-100" style="min-height: 350px;"><p class="text-muted">No fee data to display yet.</p></div>';
+                } else {
+                    new Chart(feeCtx.getContext('2d'), {
+                        type: 'pie',
+                        data: {
+                            labels: feeLabels,
+                            datasets: [{
+                                label: 'Fee Status', data: feeData,
+                                backgroundColor: ['rgba(25, 135, 84, 0.7)', 'rgba(220, 53, 69, 0.7)', 'rgba(255, 193, 7, 0.7)', 'rgba(108, 117, 125, 0.7)'],
+                                borderColor: ['#fff', '#fff', '#fff', '#fff'], borderWidth: 2
+                            }]
+                        },
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
+                    });
+                }
+            }
+        } catch (e) { console.error("Error drawing Fee chart:", e); }
+
+        // --- 2. Draw Attendance Bar Chart ---
+        try {
+            const attData = {{ attendance_chart_data.data | tojson }};
+            const attLabels = {{ attendance_chart_data.labels | tojson }};
+            const attCtx = document.getElementById('attendanceChart');
+
+            if (attCtx) {
+                const attTotal = attData.reduce((acc, val) => acc + val, 0);
+                if (attTotal === 0) {
+                    attCtx.parentElement.innerHTML = '<div class="d-flex align-items-center justify-content-center h-100" style="min-height: 350px;"><p class="text-muted">No attendance data to display yet.</p></div>';
+                } else {
+                     new Chart(attCtx.getContext('2d'), {
+                        type: 'bar', // Bar chart
+                        data: {
+                            labels: attLabels,
+                            datasets: [{
+                                label: 'Overall Attendance %', data: attData,
+                                backgroundColor: 'rgba(13, 110, 253, 0.7)', // Primary blue
+                                borderColor: 'rgba(13, 110, 253, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            scales: { y: { beginAtZero: true, max: 100, ticks: { callback: (value) => value + '%' } } }, // Add % to Y-axis
+                            plugins: { legend: { display: false } } // Hide legend for single dataset
+                        }
+                    });
+                }
+            }
+        } catch (e) { console.error("Error drawing Attendance chart:", e); }
+    });
+</script>
+{% endblock %}

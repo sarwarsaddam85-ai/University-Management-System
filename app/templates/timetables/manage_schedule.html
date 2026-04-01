@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Schedule: {{ timetable.name }}{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Manage Schedule</h2>
+         <a href="{{ url_for('timetable.timetable_list') }}" class="btn btn-secondary">
+            &larr; Back to Timetable List
+        </a>
+    </div>
+    <h4>Timetable: {{ timetable.name }}</h4>
+    <p>{{ timetable.description }}</p>
+    <hr>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-sm sticky-top" style="top: 20px;"> {# Sticky makes form stay visible #}
+                <div class="card-header bg-dark text-white">
+                    <h5>Add Schedule Entry</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                         <div class="mb-3">
+                            <label for="day" class="form-label">Day:</label>
+                            <select id="day" name="day" class="form-select" required>
+                                <option value="">-- Select Day --</option>
+                                {% for day_name in days_of_week %}
+                                    <option value="{{ day_name }}">{{ day_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="time_slot" class="form-label">Time Slot:</label>
+                            <select id="time_slot" name="time_slot" class="form-select" required>
+                                <option value="">-- Select Time --</option>
+                                {% for slot in time_slots %}
+                                    <option value="{{ slot }}">{{ slot }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                         <div class="mb-3">
+                            <label for="course_id" class="form-label">Course/Subject:</label>
+                            <select id="course_id" name="course_id" class="form-select" required>
+                                <option value="">-- Select Course --</option>
+                                {% for course in all_courses %}
+                                    <option value="{{ course.id }}">{{ course.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="teacher_id" class="form-label">Teacher:</label>
+                            <select id="teacher_id" name="teacher_id" class="form-select" required>
+                                <option value="">-- Select Teacher --</option>
+                                {% for teacher in all_teachers %}
+                                    <option value="{{ teacher.id }}">{{ teacher.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="room_no" class="form-label">Room No (Optional):</label>
+                            <input type="text" id="room_no" name="room_no" class="form-control">
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success">Add Entry</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <h5>Current Schedule</h5>
+            {% set schedule_has_entries = false %} {# Flag to check if anything is displayed #}
+            {% for day_name in days_of_week %}
+                {% if timetable.schedule.get(day_name) %} {# Check if day has entries #}
+                    {% set schedule_has_entries = true %} {# Mark that we found entries #}
+                    <div class="card shadow-sm mb-3">
+                        <div class="card-header bg-light"><strong>{{ day_name }}</strong></div>
+                        <ul class="list-group list-group-flush">
+                            {% for entry in timetable.schedule[day_name] | sort(attribute='time_slot') %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ entry.time_slot }}</strong><br>
+                                    {{ entry.course_name }} <br>
+                                    <small class="text-muted">Teacher: {{ entry.teacher_name }} {% if entry.room_no %}| Room: {{ entry.room_no }}{% endif %}</small>
+                                </div>
+                                <form action="{{ url_for('timetable.delete_schedule_entry', timetable_id=timetable_id) }}" method="POST" onsubmit="return confirm('Delete this entry?');">
+                                    <input type="hidden" name="day" value="{{ day_name }}">
+                                    <input type="hidden" name="time_slot" value="{{ entry.time_slot }}">
+                                    <input type="hidden" name="course_id" value="{{ entry.course_id }}">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">&times;</button> {# Simple 'x' button #}
+                                </form>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            {% endfor %}
+            {# #}
+             {% if not schedule_has_entries %}
+                 <div class="alert alert-info">No schedule entries added yet. Use the form on the left.</div>
+             {% endif %}
+             {# #}
+        </div>
+    </div>
+{% endblock %}

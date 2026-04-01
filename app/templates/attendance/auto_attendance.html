@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}Automated Attendance{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Automated Attendance (Face Recognition)</h2>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h5>Live Classroom View</h5>
+                </div>
+                <div class="card-body text-center">
+                    <p>Select a course, then click "Scan Classroom" to take attendance.</p>
+                    
+                    <div class="mb-3">
+                        <label for="course_id" class="form-label"><b>Select Course:</b></label>
+                        <select id="course_id" name="course_id" class="form-select w-50 mx-auto" required>
+                            <option value="">-- Select a Course --</option>
+                            {% for course in teacher_courses %}
+                                <option value="{{ course.id }}">{{ course.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="bg-dark p-2 rounded" style="min-height: 480px;">
+                        <video id="webcam" width="640" height="480" autoplay muted playsinline class="img-fluid"></video>
+                    </div>
+                    
+                    <canvas id="snapshotCanvas" width="640" height="480" class="d-none"></canvas>
+                    
+                    <button id="scanButton" class="btn btn-primary btn-lg mt-3">
+                        <i class="bi bi-camera me-2"></i>Scan Classroom
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm sticky-top" style="top: 20px;">
+                <div class="card-header bg-success text-white">
+                    <h5>Recognized Students</h5>
+                </div>
+                <div class="card-body">
+                    <p>Students found in the snapshot will appear below.</p>
+                    <div id="loadingSpinner" class="text-center d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p>Recognizing faces...</p>
+                    </div>
+                    
+                    <ul class="list-group" id="recognizedList">
+                        <li class="list-group-item text-muted">No students recognized yet.</li>
+                    </ul>
+
+                    <hr>
+                    <form id="attendanceForm" method="POST" action="{{ url_for('attendance.mark_attendance') }}"> {# Set action to manual attendance route #}
+                        <input type="hidden" name="course_id" id="course_id_submit"> {# Renamed to match mark_attendance #}
+                        <input type="hidden" name="attendance_date" id="date_submit">
+                        
+                        <div id="student_ids_container"></div>
+                        
+                        <button type="submit" id="submitAttendanceButton" class="btn btn-success w-100" disabled>
+                            Submit Attendance
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const video = document.getElementById('webcam');
+        const scanButton = document.getElementById('scanButton');
+        const canvas = document.getElementById('snapshotCanvas');
+        const context = canvas.getContext('2d');
+        const courseSelect = document.getElementById('course_id');
+        
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const recognizedList = document.getElementById('recognizedList');
+        const submitAttendanceButton = document.getElementById('submitAttendanceButton');
+        
+        const studentIdsContainer = document.getElementById('student_ids_container');
+        const attendanceForm = document.getElementById('attendanceForm');
+        const courseIdSubmit = document.getElementById('course_id_submit');
+        const dateSubmit = document.getElementById('date_submit');
+
+        let recognizedStudentIds = []; // Store IDs for submission
+
+        // --- 1. Start the Webcam ---
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(stream) {
+                    video.srcObject = stream;
+                    video.play();
+                })
+                .catch(function(error) {
+                    console.error("Error accessing webcam: ", error);
+                    alert("Could not access webcam. Please check permissions.");
+                });
+        }
+
+        // --- 2. Handle the "Scan Classroom" Button Click ---
+        scanButton.addEventListener('click', function() {
+            const courseId = courseSelect.value;
+            if (!courseId) {
+                alert("Please select a course first.");
+                return;
+            }
+
+            // Show loading spinner and clear old results
+            loadingSpinner.classList.remove('d-none');
+            recognizedList.innerHTML = '<li class="list-group-item text-muted">Scanning...</li>';
+            submitAttendanceButton.disabled = true;
+
+            // Take snapshot
+            context.drawImage(video, 0, 0, 640, 480);
+            
+            // Convert snapshot to a Blob (image file)
+            canvas.toBlob(function(blob) {
+                // Create FormData to send the file
+                const formData = new FormData();
+                formData.append('classroom_snapshot', blob, 'snapshot.jpg');
+                
+                // --- 3. Send Snapshot to Flask Backend ---
+                fetch('{{ url_for("attendance.recognize_faces") }}', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    loadingSpinner.classList.add('d-none'); // Hide spinner
+                    
+                    if (data.success) {
+                        displayRecognizedStudents(data.students, courseId);
+                    } else {
+                        console.error('Recognition error:', data.error);
+                        recognizedList.innerHTML = `<li class="list-group-item text-danger">${data.error}</li>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    loadingSpinner.classList.add('d-none');
+                    recognizedList.innerHTML = '<li class="list-group-item text-danger">Error connecting to server.</li>';
+                });
+                
+            }, 'image/jpeg');
+        });
+
+        // --- 4. Display Recognized Students ---
+        function displayRecognizedStudents(students, courseId) {
+            recognizedList.innerHTML = ''; // Clear list
+            studentIdsContainer.innerHTML = ''; // Clear form
+            recognizedStudentIds = []; // Clear old IDs
+
+            if (students.length === 0) {
+                recognizedList.innerHTML = '<li class="list-group-item text-muted">No known students were recognized.</li>';
+                submitAttendanceButton.disabled = true;
+                return;
+            }
+
+            // Get today's date
+            const today = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
+            
+            // Prepare the form for submission
+            // Note: This action posts to the *manual* attendance route
+            attendanceForm.action = '{{ url_for("attendance.mark_attendance") }}'; 
+            courseIdSubmit.value = courseId; // Set the hidden course_id
+            dateSubmit.value = today; // Set the hidden date
+
+            students.forEach(student => {
+                // Add to visible list
+                const item = document.createElement('li');
+                item.className = 'list-group-item';
+                item.textContent = `${student.name} (${student.roll_no})`;
+                recognizedList.appendChild(item);
+
+                // Add to form as hidden input (to mark as 'present')
+                // This mimics the 'mark_attendance.html' form
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = `status_${student.id}`;
+                input.value = 'present'; // Mark all recognized students as 'present'
+                studentIdsContainer.appendChild(input);
+                
+                recognizedStudentIds.push(student.id);
+            });
+
+            // Enable the submit button
+            submitAttendanceButton.disabled = false;
+        }
+
+    });
+</script>
+{% endblock %}

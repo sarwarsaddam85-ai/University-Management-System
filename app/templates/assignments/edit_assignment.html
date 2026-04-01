@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Assignment{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h2 class="card-title text-center mb-0">Edit Assignment</h2>
+            </div>
+            <div class="card-body">
+                <p>Update the assignment details below. Uploading a new file will replace the old one.</p>
+                <hr>
+                <form method="POST" enctype="multipart/form-data"> {# Still need enctype for potential file replacement #}
+
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Assignment Title:</label>
+                        <input type="text" id="title" name="title" class="form-control" value="{{ assignment.title or '' }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="course_id" class="form-label">Assign to Course:</label>
+                        <select id="course_id" name="course_id" class="form-select" required>
+                            <option value="">-- Select one of your courses --</option>
+                            {% for course in teacher_courses %}
+                                <option value="{{ course.id }}" {% if course.id == assignment.course_id %}selected{% endif %}>
+                                    {{ course.name }} ({{ course.get('course_code', 'N/A') }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="due_date" class="form-label">Due Date:</label>
+                        <input type="date" id="due_date" name="due_date" class="form-control" value="{{ assignment.due_date.strftime('%Y-%m-%d') if assignment.due_date else '' }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="assignment_file" class="form-label">Replace Assignment File (Optional):</label>
+                        <input type="file" id="assignment_file" name="assignment_file" class="form-control">
+                        <small class="form-text text-muted">Current file: <a href="{{ assignment.file_url }}" target="_blank">{{ assignment.filename }}</a>. Leave blank to keep the current file.</small>
+                    </div>
+
+                    <br>
+
+                    <div class="text-end">
+                        <a href="{{ url_for('assignments.teacher_list') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-success">Update Assignment</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

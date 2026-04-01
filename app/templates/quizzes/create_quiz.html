@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Create New Quiz{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h2 class="card-title text-center mb-0">Create New Quiz</h2>
+            </div>
+            <div class="card-body">
+                <p>Fill out the form to create a new quiz. You will add questions in the next step.</p>
+                <hr>
+
+                <form method="POST">
+
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Quiz Title:</label>
+                        <input type="text" id="title" name="title" class="form-control" placeholder="e.g., Chapter 1 Pop Quiz" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="course_id" class="form-label">Assign to Course:</label>
+                        <select id="course_id" name="course_id" class="form-select" required>
+                            <option value="">-- Select one of your courses --</option>
+                            {% for course in teacher_courses %}
+                                <option value="{{ course.id }}">
+                                    {{ course.name }} ({{ course.course_code }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="deadline" class="form-label">Deadline:</label>
+                        <input type="date" id="deadline" name="deadline" class="form-control" value="{{ today }}">
+                        <small class="form-text text-muted">Students must complete the quiz by this date.</small>
+                    </div>
+                    <br>
+
+                    <div class="text-end">
+                        <a href="{{ url_for('dashboard.teacher_dashboard') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-success">Create Quiz and Add Questions</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

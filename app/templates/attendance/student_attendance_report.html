@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}My Attendance{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>My Attendance Record</h2>
+        <a href="{{ url_for('dashboard.student_dashboard') }}" class="btn btn-secondary">
+            &larr; Back to Dashboard
+        </a>
+    </div>
+
+    <h4>Course: {{ course_name }}</h4>
+    <hr>
+
+    {% if attendance_data %}
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in attendance_data %}
+            <tr>
+                <td>{{ record.date }}</td>
+                <td>
+                    {% if record.status == 'present' %}
+                        <span class="badge bg-success">Present</span>
+                    {% elif record.status == 'absent' %}
+                        <span class="badge bg-danger">Absent</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Not Recorded</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <div class="alert alert-info">No attendance has been recorded for you in this course yet.</div>
+    {% endif %}
+{% endblock %}

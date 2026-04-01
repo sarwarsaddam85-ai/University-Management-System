@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}View Assignments{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>My Assignments</h2>
+</div>
+
+<div class="row">
+    {% for assignment in assignments %}
+    <div class="col-md-6">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-dark text-white">
+                <h5 class="card-title mb-0">{{ assignment.title }}</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Uploaded:</strong> {{ assignment.uploaded_at.strftime('%Y-%m-%d') }}</p>
+                <p><strong>Due Date:</strong>
+                   <span class="{% if assignment.due_date and assignment.due_date.date() < today_date %}text-danger fw-bold{% endif %}">
+                        {{ assignment.due_date.strftime('%Y-%m-%d') if assignment.due_date else 'No Due Date' }}
+                   </span>
+                   {% if assignment.due_date and assignment.due_date.date() < today_date %} (Past Due){% endif %}
+                </p>
+                
+                <a href="{{ assignment.file_url }}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+                    Download Assignment
+                </a>
+
+                <hr>
+
+                {% if assignment.id in submissions_map %}
+                    <div class="alert alert-success">
+                        <strong>Submitted on {{ submissions_map[assignment.id].submitted_at.strftime('%Y-%m-%d %H:%M') }}</strong><br>
+                        <small>File: {{ submissions_map[assignment.id].filename }}</small>
+                    </div>
+
+                {% elif assignment.due_date and assignment.due_date.date() < today_date %}
+                    <div class="alert alert-danger">
+                        <strong>Submission Closed.</strong><br>
+                        <small>The due date for this assignment was {{ assignment.due_date.strftime('%Y-%m-%d') }}.</small>
+                    </div>
+
+                {% else %}
+                    <form method="POST" 
+                          action="{{ url_for('assignments.submit_assignment', assignment_id=assignment.id) }}" 
+                          enctype="multipart/form-data">
+                        
+                        <label for="submission_file_{{ assignment.id }}" class="form-label"><strong>Submit Your Work:</strong></label>
+                        <input type="file" 
+                               id="submission_file_{{ assignment.id }}" 
+                               name="submission_file" 
+                               class="form-control" 
+                               required>
+                        <div class="d-grid mt-2">
+                            <button type="submit" class="btn btn-success">Submit</button>
+                        </div>
+                    </form>
+                {% endif %}
+                </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <div class="alert alert-info">
+            You have no assignments for your enrolled courses.
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}
