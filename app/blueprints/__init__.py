@@ -1,28 +1,25 @@
-import os
-import json
-import firebase_admin
-from firebase_admin import credentials
+def create_app():
+    app = Flask(__name__)
+    
+    # --- FIREBASE START ---
+    import os
+    import json
+    import firebase_admin
+    from firebase_admin import credentials
 
-# 1. Try to get the config from the Render Environment Variable
-firebase_config = os.environ.get('FIREBASE_CONFIG')
+    firebase_config = os.environ.get('FIREBASE_CONFIG')
 
-if firebase_config:
-    # We are on Render! Use the data from the Environment Variable
-    try:
+    if firebase_config:
+        # Use Render's Environment Variable
         config_dict = json.loads(firebase_config)
         cred = credentials.Certificate(config_dict)
-    except Exception as e:
-        print(f"!!! ERROR Parsing FIREBASE_CONFIG: {e} !!!")
-        raise e
-else:
-    # We are on your PC! Use the local file
-    if os.path.exists('serviceAccountKey.json'):
-        cred = credentials.Certificate('serviceAccountKey.json')
     else:
-        print("!!! ERROR: No serviceAccountKey.json found locally !!!")
-        # Fallback or placeholder for local development without the file
-        cred = None 
+        # Local PC fallback
+        cred = credentials.Certificate('serviceAccountKey.json')
 
-# 2. Initialize the app only if it hasn't been started yet
-if cred and not firebase_admin._apps:
-    firebase_admin.initialize_app(cred)
+    if not firebase_admin._apps:
+        firebase_admin.initialize_app(cred)
+    # --- FIREBASE END ---
+    
+    # ... rest of your code (Blueprints, etc.)
+    return app
