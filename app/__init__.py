@@ -1,7 +1,8 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
 from flask import Flask, render_template
-import os # Import os to generate a secret key
+import os 
+import json # Added for Environment Variable parsing
 
 # Global database client instance
 db = None
@@ -11,40 +12,44 @@ def create_app():
 
     app = Flask(__name__)
 
-    # --- !!! CRITICAL SECURITY FIX !!! ---
-    # Use environment variable for secret key in production, or generate a random one for development.
-    # NEVER hardcode API keys or guessable strings here.
+    # --- SECURITY FIX ---
     app.secret_key = os.environ.get('FLASK_SECRET_KEY', os.urandom(24))
-    # For simplicity in development, os.urandom(24) generates a new random key each time.
-    # For production, set a fixed FLASK_SECRET_KEY environment variable.
-    # --- END SECURITY FIX ---
 
-    # --- Firebase Initialization ---
+    # --- Firebase Initialization (UPDATED FOR RENDER) ---
     if not firebase_admin._apps:
         try:
-            cred = credentials.Certificate('serviceAccountKey.json')
+            # 1. Check if we are on Render (Environment Variable)
+            firebase_config = os.environ.get('FIREBASE_CONFIG')
+
+            if firebase_config:
+                # Use the JSON text from Render Dashboard
+                config_dict = json.loads(firebase_config)
+                cred = credentials.Certificate(config_dict)
+                print("--- Firebase Initialized via Environment Variable ---")
+            else:
+                # Use the local file on your PC
+                cred = credentials.Certificate('serviceAccountKey.json')
+                print("--- Firebase Initialized via local file ---")
+
             firebase_admin.initialize_app(cred, {
-                # --- CORRECTED Storage Bucket URL (Use yours from Firebase Console) ---
                 'storageBucket': 'studentmanagementsystem-204e6.firebasestorage.app'
-                # --- Replace above with your actual bucket URL ending in .appspot.com ---
             })
-            print("--- Firebase Admin SDK Initialized ---") # Debug print
+            
         except Exception as e:
             print(f"!!! ERROR Initializing Firebase Admin SDK: {e} !!!")
-            # Handle initialization error appropriately, maybe exit or raise
-            raise e # Stop the app if Firebase can't init
+            raise e 
 
     # --- Initialize Firestore Client ---
     try:
         db = firestore.client()
-        print("--- Firestore Client Initialized ---") # Debug print
+        print("--- Firestore Client Initialized ---")
     except Exception as e:
          print(f"!!! ERROR Getting Firestore Client: {e} !!!")
-         raise e # Stop the app if Firestore client fails
+         raise e 
 
-    # --- Register Blueprints (Consolidated into one block) ---
+    # --- Register Blueprints ---
     with app.app_context():
-        print("--- Registering Blueprints ---") # Debug print
+        print("--- Registering Blueprints ---")
         try:
             from .blueprints.auth_bp import auth_bp
             app.register_blueprint(auth_bp, url_prefix='/auth')
@@ -75,25 +80,23 @@ def create_app():
 
             from .blueprints.library_bp import library_bp
             app.register_blueprint(library_bp, url_prefix='/library')
-            print("--- Blueprints Registered Successfully ---") # Debug print
 
-            # --- ADD THESE TWO LINES ---
             from .blueprints.timetable_bp import timetable_bp
             app.register_blueprint(timetable_bp, url_prefix='/timetable')
-            # ---------------------------
 
             from .blueprints.hostel_bp import hostel_bp
             app.register_blueprint(hostel_bp, url_prefix='/hostel')
+            
+            print("--- Blueprints Registered Successfully ---")
 
         except Exception as e:
             print(f"!!! ERROR Registering Blueprints: {e} !!!")
-            raise e # Stop if blueprints can't load
-
+            raise e
 
     # --- Main Route ---
     @app.route('/')
     def home():
         return render_template('index.html')
 
-    print("--- Flask App Creation Complete ---") # Debug print
+    print("--- Flask App Creation Complete ---")
     return app
