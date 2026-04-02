@@ -70,37 +70,37 @@
                 <a href="{{ url_for('assignments.view_assignments') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                     <div>
                         <h5 class="mb-1"><i class="bi bi-file-earmark-arrow-down me-2 text-primary"></i>View Assignments</h5>
-                        <small>Download assignments and submit your work.</small>
+                        <small>Download and submit your work.</small>
                     </div>
                     <span class="badge bg-primary rounded-pill">></span>
                 </a>
                 <a href="{{ url_for('quizzes.student_quiz_list') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                      <div>
                         <h5 class="mb-1"><i class="bi bi-pencil-square me-2 text-success"></i>View Quizzes</h5>
-                        <small>See available quizzes and take them.</small>
+                        <small>Take available quizzes.</small>
                     </div>
                     <span class="badge bg-success rounded-pill">></span>
                 </a>
                  <a href="{{ url_for('quizzes.student_results') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                     <div>
                         <h5 class="mb-1"><i class="bi bi-file-earmark-check me-2 text-info"></i>My Results</h5>
-                        <small>Check your scores for submitted quizzes.</small>
+                        <small>Check quiz scores.</small>
                     </div>
                     <span class="badge bg-info rounded-pill">></span>
                 </a>
                 <a href="{{ url_for('finance.my_fees') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                     <div>
                         <h5 class="mb-1"><i class="bi bi-wallet2 me-2 text-warning"></i>My Fees</h5>
-                        <small>Check your fee status and upload receipts.</small>
+                        <small>Check status and upload receipts.</small>
                     </div>
                     <span class="badge bg-warning rounded-pill">></span>
                 </a>
                 <a href="{{ url_for('library.my_issued_books') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                    <div><h5 class="mb-1"><i class="bi bi-journal-bookmark me-2 text-secondary"></i>My Issued Books</h5><small>See books you have borrowed.</small></div>
+                    <div><h5 class="mb-1"><i class="bi bi-journal-bookmark me-2 text-secondary"></i>My Issued Books</h5><small>Books you have borrowed.</small></div>
                     <span class="badge bg-secondary rounded-pill">></span>
                 </a>
                 <a href="#schedule" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                    <div><h5 class="mb-1"><i class="bi bi-calendar3 me-2 text-dark"></i>View Timetable</h5><small>Check your weekly class schedule.</small></div>
+                    <div><h5 class="mb-1"><i class="bi bi-calendar3 me-2 text-dark"></i>View Timetable</h5><small>Weekly class schedule.</small></div>
                     <span class="badge bg-dark rounded-pill">></span>
                 </a>
                 <a href="#hostel" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
@@ -123,10 +123,11 @@
                         </a>
                         {% endfor %}
                     </div>
-                     <div class="text-end mt-2"><small>(Showing latest unread per category)</small></div>
+                     <div class="text-end mt-2"><small>(Showing latest unread)</small></div>
                 </div>
             </div>
             {% endif %}
+
             <div class="row mb-4">
                 <div class="col-12">
                      <h3>My Fee Status</h3>
@@ -147,20 +148,22 @@
                                  <small class="text-muted">
                                     Assigned: ${{ "{:,.2f}".format(student_fee_data.fee_assigned) }} |
                                     Paid: ${{ "{:,.2f}".format(student_fee_data.fee_paid) }}
-                                 </small> </div>
-                             <a href="{{ url_for('finance.my_fees') }}" class="btn btn-outline-primary btn-sm">View Details</a>
+                                 </small>
+                             </div>
+                             <a href="{{ url_for('finance.my_fees') }}" class="btn btn-outline-primary btn-sm">Details</a>
                          </div>
                      </div>
                 </div>
             </div>
+
             {% if hostel_room_data %}
-            <div class="row mb-4" id="hostel"> {# Added id="hostel" #}
+            <div class="row mb-4" id="hostel">
                 <div class="col-12">
                      <h3>My Hostel Room</h3>
                      <div class="card shadow-sm">
                          <div class="card-body">
                              <h5 class="card-title mb-1"><i class="bi bi-building me-2"></i>{{ hostel_room_data.room_number }}</h5>
-                             <h6 classM="card-subtitle mb-2 text-muted">{{ hostel_room_data.hostel_block | default('Main Hostel') }}</h6>
+                             <h6 class="card-subtitle mb-2 text-muted">{{ hostel_room_data.hostel_block | default('Main Hostel') }}</h6>
                              <p class="card-text mb-0">
                                  Room Capacity: {{ hostel_room_data.capacity }}
                              </p>
@@ -169,6 +172,7 @@
                 </div>
             </div>
             {% endif %}
+
             <div class="row mb-4">
                 <div class="col-12">
                     <h3>Recent Quiz Results</h3>
@@ -193,10 +197,11 @@
                             <a href="{{ url_for('quizzes.student_results') }}">View All Results &rarr;</a>
                          </div>
                     {% else %}
-                        <div class="alert alert-info">No quiz results found yet.</div>
+                        <div class="alert alert-info">No quiz results found.</div>
                     {% endif %}
                 </div>
             </div>
+
             <div class="row mb-4">
                 <div class="col-12">
                     <h3>Recent Assignment Results</h3>
@@ -218,10 +223,11 @@
                             </tbody>
                         </table>
                     {% else %}
-                        <div class="alert alert-info">No graded assignments found yet.</div>
+                        <div class="alert alert-info">No graded assignments found.</div>
                     {% endif %}
                 </div>
             </div>
-            </div>
+
+        </div>
     </div>
 {% endblock %}

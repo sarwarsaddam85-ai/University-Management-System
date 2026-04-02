@@ -46,10 +46,6 @@
                 <a href="{{ url_for('courses.index') }}" class="list-group-item list-group-item-action"><i class="bi bi-book me-2 text-warning"></i>Manage Courses</a>
                 <a href="{{ url_for('timetable.timetable_list') }}" class="list-group-item list-group-item-action"><i class="bi bi-calendar-week me-2 text-dark"></i>Manage Timetables</a>
                 
-                <a href="{{ url_for('students.train_faces') }}" class="list-group-item list-group-item-action" onclick="return confirm('This process can take several minutes. Are you sure you want to run the training now?');">
-                    <i class="bi bi-robot me-2 text-primary"></i>Run Face Training
-                </a>
-                
                 <a href="{{ url_for('library.book_list') }}" class="list-group-item list-group-item-action"><i class="bi bi-bookshelf me-2 text-secondary"></i>Manage Library</a>
                 
                 <a href="{{ url_for('hostel.room_list') }}" class="list-group-item list-group-item-action"><i class="bi bi-building me-2 text-secondary"></i>Manage Hostel</a>
